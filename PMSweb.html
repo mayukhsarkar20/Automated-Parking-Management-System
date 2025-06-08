@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkFirst - Faster and Simple</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <h1>ParkFirst</h1>
+        <p class="tagline">Faster and Simple</p>
+        <div class="phone-input">
+            <span class="prefix">+91</span>
+            <input type="tel" id="phone" pattern="[1-9]{10}" maxlength="10" placeholder="Enter phone number">
+        </div>
+        <button onclick="validatePhone()">Continue</button>
+    </div>
+
+    <!-- Vehicle Selection Page -->
+    <div id="vehiclePage" class="page">
+        <h2>Welcome</h2>
+        <p>Choose vehicle type</p>
+        <button onclick="selectVehicle(0)">4-wheeler</button>
+        <button onclick="selectVehicle(1)">2-wheeler</button>
+    </div>
+
+    <!-- QR Code Page -->
+    <div id="qrPage" class="page">
+        <div id="qrContainer"></div>
+        <button class="next-btn" onclick="simulateBackend()">Next (Testing)</button>
+    </div>
+
+    <!-- Timer Page -->
+    <div id="timerPage" class="page">
+        <h2>Have a great time</h2>
+        <div id="timer">00:00</div>
+        <button onclick="checkout()">Check Out</button>
+    </div>
+
+    <!-- Payment Page -->
+    <div id="paymentPage" class="page">
+        <div class="payment-success">Payment Successful! ✅</div>
+        <div id="costDisplay">Amount: ₹<span id="costAmount">0</span></div>
+        <button onclick="payNow()">Generate Exit QR</button>
+    </div>
+
+    <!-- Final QR Page -->
+    <div id="finalQrPage" class="page">
+        <p class="qr-instruction">Scan this QR at the exit</p>
+        <div id="finalQrContainer"></div>
+        <button class="next-btn" onclick="showPage(7)">Finish</button>
+    </div>
+
+    <!-- Thank You Page -->
+    <div id="thankyouPage" class="page">
+        <h2>Thank You</h2>
+        <p class="visit-again">Visit Again</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

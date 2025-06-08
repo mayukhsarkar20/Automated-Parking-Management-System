@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrance QR Code Scanner</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+</head>
+<body>
+    <h2>Scan a QR Code</h2>
+    <video id="video" width="300" height="200" autoplay></video>
+    <canvas id="canvas" hidden></canvas>
+    <p id="output">Waiting for scan...</p>
+    <button id="toggleCamera">Turn Camera Off</button> <!-- New Button -->
+
+    <script>
+        let lastScannedCode = ""; // Store last scanned QR code
+        let videoStream = null; // Store the video stream
+
+        async function startScanner() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const output = document.getElementById('output');
+
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = videoStream;
+            } catch (error) {
+                console.error("Camera access denied:", error);
+                output.innerText = "Camera access denied. Allow camera permission.";
+                return;
+            }
+
+            setInterval(() => {
+                if (!videoStream) return; // Stop scanning if camera is off
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+                if (code && code.data && code.data !== lastScannedCode) {
+                    lastScannedCode = code.data; // Store scanned code
+                    output.innerText = "Scanned: " + code.data;
+                    console.log("QR Code Detected:", code.data);
+                    sendToServer(code.data);
+                }
+            }, 1000); // Scans every second
+        }
+
+        async function sendToServer(scannedData) {
+            try {
+                const response = await fetch("http://localhost:8080/scan", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "text/plain"
+                    },
+                    body: scannedData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+
+                console.log("Data sent successfully!");
+            } catch (error) {
+                console.error("Error sending data:", error);
+            }
+        }
+
+        function toggleCamera() {
+            const video = document.getElementById('video');
+            const button = document.getElementById('toggleCamera');
+
+            if (videoStream) {
+                // Stop camera
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                video.srcObject = null;
+                button.innerText = "Turn Camera On";
+            } else {
+                // Restart camera
+                startScanner();
+                button.innerText = "Turn Camera Off";
+            }
+        }
+
+        document.getElementById('toggleCamera').addEventListener('click', toggleCamera);
+
+        startScanner();
+    </script>
+</body>
+</html>
